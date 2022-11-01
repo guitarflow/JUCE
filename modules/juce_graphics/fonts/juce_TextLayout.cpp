@@ -234,6 +234,16 @@ void TextLayout::draw (Graphics& g, Rectangle<float> area) const
                 context.fillRect ({ runExtent.getStart() + lineOrigin.x, lineOrigin.y + lineThickness * 2.0f,
                                     runExtent.getLength(), lineThickness });
             }
+            
+            if (run->font.isStrikethrough())
+            {
+                auto runExtent = run->getRunBoundsX();
+                auto lineThickness = run->font.getDescent() * 0.3f;
+
+                context.fillRect ({ runExtent.getStart() + lineOrigin.x,
+                                    lineOrigin.y - (run->font.getAscent()/2.0f) + (lineThickness/2.0f),
+                                    runExtent.getLength(), lineThickness });
+            }
         }
     }
 

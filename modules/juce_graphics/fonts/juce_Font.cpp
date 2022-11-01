@@ -198,7 +198,8 @@ public:
         : typefaceName (Font::getDefaultSansSerifFontName()),
           typefaceStyle (FontStyleHelpers::getStyleName (styleFlags)),
           height (fontHeight),
-          underline ((styleFlags & underlined) != 0)
+          underline ((styleFlags & underlined) != 0),
+          struckthrough ((styleFlags & strikethrough) != 0)
     {
         if (styleFlags == plain)
             typeface = TypefaceCache::getInstance()->getDefaultFace();
@@ -208,7 +209,8 @@ public:
         : typefaceName (name),
           typefaceStyle (FontStyleHelpers::getStyleName (styleFlags)),
           height (fontHeight),
-          underline ((styleFlags & underlined) != 0)
+          underline ((styleFlags & underlined) != 0),
+          struckthrough ((styleFlags & strikethrough) != 0)
     {
         if (styleFlags == plain && typefaceName.isEmpty())
             typeface = TypefaceCache::getInstance()->getDefaultFace();
@@ -239,13 +241,14 @@ public:
           horizontalScale (other.horizontalScale),
           kerning (other.kerning),
           ascent (other.ascent),
-          underline (other.underline)
+          underline (other.underline),
+          struckthrough (other.struckthrough)
     {
     }
 
     auto tie() const
     {
-        return std::tie (height, underline, horizontalScale, kerning, typefaceName, typefaceStyle);
+        return std::tie (height, underline, struckthrough, horizontalScale, kerning, typefaceName, typefaceStyle);
     }
 
     bool operator== (const SharedFontInternal& other) const noexcept
@@ -308,6 +311,7 @@ public:
     float getHorizontalScale() const        { return horizontalScale; }
     float getKerning() const                { return kerning; }
     bool getUnderline() const               { return underline; }
+    bool getStruckthrough() const           { return struckthrough; }
 
     /*  This shared state may be shared between two or more Font instances that are being
         read/modified from multiple threads.
@@ -363,12 +367,18 @@ public:
         jassert (getReferenceCount() == 1);
         underline = x;
     }
+    
+    void setStruckthrough (bool x)
+    {
+        jassert(getReferenceCount() == 1);
+        struckthrough = x;
+    }
 
 private:
     Typeface::Ptr typeface;
     String typefaceName, typefaceStyle;
+    bool underline = false, struckthrough = false;
     float height = 0.0f, horizontalScale = 1.0f, kerning = 0.0f, ascent = 0.0f;
-    bool underline = false;
 
     CriticalSection mutex;
 };
@@ -594,8 +604,9 @@ int Font::getStyleFlags() const noexcept
 {
     int styleFlags = font->getUnderline() ? underlined : plain;
 
-    if (isBold())    styleFlags |= bold;
-    if (isItalic())  styleFlags |= italic;
+    if (isBold())           styleFlags |= bold;
+    if (isItalic())         styleFlags |= italic;
+    if (isStrikethrough())  styleFlags |= strikethrough;
 
     return styleFlags;
 }
@@ -615,6 +626,7 @@ void Font::setStyleFlags (const int newFlags)
         font->setTypeface (nullptr);
         font->setTypefaceStyle (FontStyleHelpers::getStyleName (newFlags));
         font->setUnderline ((newFlags & underlined) != 0);
+        font->setStruckthrough ((newFlags & strikethrough) != 0);
         font->setAscent (0);
     }
 }
@@ -702,6 +714,7 @@ void Font::setExtraKerningFactor (const float extraKerning)
 Font Font::boldened() const                 { return withStyle (getStyleFlags() | bold); }
 Font Font::italicised() const               { return withStyle (getStyleFlags() | italic); }
 
+bool Font::isStrikethrough() const noexcept { return font->getStruckthrough(); }
 bool Font::isBold() const noexcept          { return FontStyleHelpers::isBold   (font->getTypefaceStyle()); }
 bool Font::isItalic() const noexcept        { return FontStyleHelpers::isItalic (font->getTypefaceStyle()); }
 bool Font::isUnderlined() const noexcept    { return font->getUnderline(); }
@@ -724,6 +737,13 @@ void Font::setUnderline (const bool shouldBeUnderlined)
 {
     dupeInternalIfShared();
     font->setUnderline (shouldBeUnderlined);
+    checkTypefaceSuitability();
+}
+    
+void Font::setStrikethrough (const bool shouldBeStrikethrough)
+{
+    dupeInternalIfShared();
+    font->setStruckthrough (shouldBeStrikethrough);
     checkTypefaceSuitability();
 }
 

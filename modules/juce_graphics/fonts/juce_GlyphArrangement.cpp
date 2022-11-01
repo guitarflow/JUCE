@@ -703,6 +703,20 @@ void GlyphArrangement::drawGlyphUnderline (const Graphics& g, const PositionedGl
     g.fillPath (p, transform);
 }
 
+void GlyphArrangement::drawGlyphStrikethrough (const Graphics& g, const PositionedGlyph& pg,
+                                               int i, AffineTransform transform) const
+{
+    auto lineThickness = (pg.font.getDescent()) * 0.3f;
+    auto nextX = pg.x + pg.w;
+    
+    if (i < glyphs.size() - 1 && glyphs.getReference (i + 1).y == pg.y)
+        nextX = glyphs.getReference (i + 1).x;
+    
+    Path p;
+    p.addRectangle (pg.x, pg.y - (pg.font.getAscent()/2.0f) + lineThickness * 2.0f, nextX - pg.x, lineThickness);
+    g.fillPath (p, transform);
+}
+
 void GlyphArrangement::draw (const Graphics& g) const
 {
     draw (g, {});
@@ -720,6 +734,9 @@ void GlyphArrangement::draw (const Graphics& g, AffineTransform transform) const
 
         if (pg.font.isUnderlined())
             drawGlyphUnderline (g, pg, i, transform);
+
+        if (pg.font.isStrikethrough())
+            drawGlyphStrikethrough(g, pg, i, transform);
 
         if (! pg.isWhitespace())
         {

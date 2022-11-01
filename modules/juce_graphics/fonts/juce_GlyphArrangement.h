@@ -314,6 +314,7 @@ private:
                      float lineWidth, Justification, float minimumHorizontalScale);
     void addLinesWithLineBreaks (const String&, const Font&, float x, float y, float width, float height, Justification);
     void drawGlyphUnderline (const Graphics&, const PositionedGlyph&, int, AffineTransform) const;
+    void drawGlyphStrikethrough (const Graphics&, const PositionedGlyph&, int, AffineTransform) const;
 
     JUCE_LEAK_DETECTOR (GlyphArrangement)
 };

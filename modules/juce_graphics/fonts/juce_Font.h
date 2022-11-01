@@ -47,10 +47,11 @@ public:
     */
     enum FontStyleFlags
     {
-        plain       = 0,    /**< indicates a plain, non-bold, non-italic version of the font. @see setStyleFlags */
-        bold        = 1,    /**< boldens the font. @see setStyleFlags */
-        italic      = 2,    /**< finds an italic version of the font. @see setStyleFlags */
-        underlined  = 4     /**< underlines the font. @see setStyleFlags */
+        plain           = 0,    /**< indicates a plain, non-bold, non-italic version of the font. @see setStyleFlags */
+        bold            = 1,    /**< boldens the font. @see setStyleFlags */
+        italic          = 2,    /**< finds an italic version of the font. @see setStyleFlags */
+        underlined      = 4,    /**< underlines the font. @see setStyleFlags */
+        strikethrough   = 8     /**< strikes through the font. @see setStyleFlags */
     };
 
     //==============================================================================
@@ -69,7 +70,7 @@ public:
         @param typefaceName the font family of the typeface to use
         @param fontHeight   the height in pixels (can be fractional)
         @param styleFlags   the style to use - this can be a combination of the
-                            Font::bold, Font::italic and Font::underlined, or
+                            Font::bold, Font::italic, Font::underlined and Font::strikethrough flags, or
                             just Font::plain for the normal style.
         @see FontStyleFlags, getDefaultSansSerifFontName
     */
@@ -302,6 +303,12 @@ public:
     void setUnderline (bool shouldBeUnderlined);
     /** Returns true if the font is underlined. */
     bool isUnderlined() const noexcept;
+    
+    /** Makes the font strikethrough or non-strikethrough. */
+    void setStrikethrough (bool shouldBeStrikethrough);
+    /** Returns true if the font is strikethrough. */
+    bool isStrikethrough() const noexcept;
+    
 
     //==============================================================================
     /** Returns the font's horizontal scale.
